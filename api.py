@@ -31,7 +31,7 @@ events = [
         "title": "Quizaften",
         "date": "2026-11-13",
         "capacity": 3,
-        "participants": ["Anna", "Bo"],
+        "participants": ["Anna", "Bodil"],
     },
     {
         "id": 2,
@@ -51,7 +51,6 @@ events = [
 
 
 def find_event(event_id):
-    """Returnér eventet med det id, eller None hvis det ikke findes."""
     for event in events:
         if event["id"] == event_id:
             return event
