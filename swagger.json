@@ -1,0 +1,324 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Fredagsbar API",
+    "description": "API til events og tilmeldinger i fredagsbaren. Et event har et begrænset antal pladser.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000"
+    }
+  ],
+  "paths": {
+    "/events": {
+      "get": {
+        "summary": "Hent alle events",
+        "responses": {
+          "200": {
+            "description": "Liste af events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Opret et event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Det nye event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "title, date eller capacity mangler, eller capacity er ikke et positivt heltal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          },
+          "description": "Event-id"
+        }
+      ],
+      "get": {
+        "summary": "Hent ét event",
+        "responses": {
+          "200": {
+            "description": "Eventet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Eventet findes ikke",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Slet et event",
+        "responses": {
+          "204": {
+            "description": "Eventet er slettet"
+          },
+          "404": {
+            "description": "Eventet findes ikke",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}/signups": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          },
+          "description": "Event-id"
+        }
+      ],
+      "post": {
+        "summary": "Tilmeld en person til et event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewSignup"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Det opdaterede event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "name mangler",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Eventet findes ikke",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Eventet er fuldt, eller personen er allerede tilmeldt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}/signups/{name}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          },
+          "description": "Event-id"
+        },
+        {
+          "name": "name",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Navnet på den tilmeldte person"
+        }
+      ],
+      "delete": {
+        "summary": "Afmeld en person fra et event",
+        "responses": {
+          "204": {
+            "description": "Tilmeldingen er fjernet"
+          },
+          "404": {
+            "description": "Eventet eller tilmeldingen findes ikke",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Event": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "date",
+          "capacity",
+          "participants"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Quizaften"
+          },
+          "date": {
+            "type": "string",
+            "example": "2026-11-13"
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 3
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Anna",
+              "Bo"
+            ]
+          }
+        }
+      },
+      "NewEvent": {
+        "type": "object",
+        "required": [
+          "title",
+          "date",
+          "capacity"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Beerpong"
+          },
+          "date": {
+            "type": "string",
+            "example": "2026-12-04"
+          },
+          "capacity": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 8
+          }
+        }
+      },
+      "NewSignup": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Dave"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Event is full"
+          }
+        }
+      }
+    }
+  }
+}
